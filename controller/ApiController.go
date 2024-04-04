@@ -26,7 +26,7 @@ func Getting(c *gin.Context) {
 func Posting(c *gin.Context) {
 	var car models.Car
 	c.BindJSON(&car)
-	config.DB.Create(&car)
+	config.DB.Save(&car)
 	c.JSON(200, &car)
 }
 

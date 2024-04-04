@@ -51,7 +51,7 @@ func main() {
 	router.LoadHTMLGlob("templates/*.html")
 	router.Static("/static", "./static")
 	routes.ApiRouter(router)
-	routes.DemoRouter(router)
+	routes.HtmlRouter(router)
 	config.Connect()
 	router.Run(util.Conf("PORT")) //.env에서 포트 읽어오기
 }

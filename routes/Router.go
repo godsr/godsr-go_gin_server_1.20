@@ -19,11 +19,11 @@ func ApiRouter(router *gin.Engine) {
 
 }
 
-func DemoRouter(router *gin.Engine) {
+func HtmlRouter(router *gin.Engine) {
 
-	demoRouter := router.Group("/demo")
+	htmlRouter := router.Group("/page")
 
-	demoRouter.GET("/1", func(context *gin.Context) {
+	htmlRouter.GET("/1", func(context *gin.Context) {
 		context.HTML(http.StatusOK, "index.html", gin.H{
 			"title":   "뱃살마왕.",
 			"message": "그 이름은, 박 민 수 !",
