@@ -19,11 +19,19 @@ func ApiRouter(router *gin.Engine) {
 
 }
 
-func DemoRouter(router *gin.Engine) {
+func WSRouter(router *gin.Engine) {
 
-	demoRouter := router.Group("/demo")
+	wsRouter := router.Group("/ws")
 
-	demoRouter.GET("/1", func(context *gin.Context) {
+	wsRouter.GET("/msg", controller.WsGet)
+
+}
+
+func HtmlRouter(router *gin.Engine) {
+
+	htmlRouter := router.Group("/page")
+
+	htmlRouter.GET("/1", func(context *gin.Context) {
 		context.HTML(http.StatusOK, "index.html", gin.H{
 			"title":   "뱃살마왕.",
 			"message": "그 이름은, 박 민 수 !",

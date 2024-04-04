@@ -1,18 +1,53 @@
 <!DOCTYPE html>
 <head>
-    <meta charset="utf-8">
-    <title>Main Go Web Pages</title>
-    <link rel="stylesheet" href="../static/css/style.css">
+  <meta charset="utf-8" />
+  <title>Main Go Web Pages</title>
+  <link rel="stylesheet" href="../static/css/style.css" />
 </head>
 
 <body>
-    <div class="container">
-        <h1 class="title">{{ .title}}</h1>
-        <p class="text">{{ .message}}</p>
-        <img class="image_1" src="../static/img/IMG_0050.png" alt="이미지 파일">
-    </div>
+  <div class="container">
+    <h1 class="title">{{ .title}}</h1>
+    <p class="text">{{ .message}}</p>
+    <img class="image_1" src="../static/img/IMG_0050.PNG" alt="이미지 파일" />
+  </div>
 </body>
 
-<footer>
+<footer></footer>
 
-</footer>
+<script>
+  const wsUrl = "ws://localhost:8080/ws/msg";
+  const socket = new WebSocket(wsUrl);
+
+  socket.onopen = function () {
+    console.log("WebSocket 연결이 열렸습니다.");
+    sendMessage("연결 확인용");
+  };
+
+  socket.onerror = function (error) {
+    console.error("WebSocket 오류 발생: " + error);
+    console.error(error);
+  };
+
+  function sendMessage(message) {
+    if (socket.readyState === WebSocket.OPEN) {
+      // WebSocket이 열려있는 경우에만 메시지를 보냅니다.
+      const jsonMsg = {
+        text: message,
+      };
+      socket.send(JSON.stringify(jsonMsg));
+      console.log("Message sent to server:", jsonMsg);
+      socket.onclose;
+    } else {
+      console.error("WebSocket is not open. Cannot send message.");
+    }
+  }
+
+  socket.onmessage = function (event) {
+    console.log("Received message from server:", event.data);
+    if (event.data == "eventEnd") {
+      tableData();
+    }
+    // 원하는 작업 수행
+  };
+</script>
