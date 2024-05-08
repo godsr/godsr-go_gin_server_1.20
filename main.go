@@ -51,7 +51,9 @@ func main() {
 	router.LoadHTMLGlob("templates/*.html")
 	router.Static("/static", "./static")
 	routes.ApiRouter(router)
+	routes.UserRouter(router)
 	routes.HtmlRouter(router)
-	config.Connect()
+	config.Connect()              //DB 연결
+	config.RedisInit()            //Redis 연결
 	router.Run(util.Conf("PORT")) //.env에서 포트 읽어오기
 }

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8" />
+  <title>{{ .title}}</title>
+  <link rel="stylesheet" href="../static/css/style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <!-- <h1 class="title">{{ .title}}</h1> -->
+    <h1 class="text">{{ .message}}</h1>
+    <!-- <img class="image_1" src="../static/img/IMG_0050.PNG" alt="이미지 파일" /> -->
+    <div id="userIdDiv">
+      <input
+        class=""
+        value=""
+        id="userId"
+        type="text"
+        placeholder="ID"
+        oninput="checkId()"
+      />
+      <span id="checkRltSpan" style="display: none" value="n"></span>
+    </div>
+    <div>
+      <input class="" value="" id="userNm" type="text" placeholder="이름" />
+    </div>
+    <div>
+      <input class="" value="" id="userPw" type="password" placeholder="PW" />
+    </div>
+    <input type="button" class="" onclick="create()" value="회원가입" />
+  </div>
+</body>
+
+<footer></footer>
+<script src="../static/js/apiManager.js"></script>
+<script>
+  function create() {
+    userId = document.getElementById("userId").value;
+    userNm = document.getElementById("userNm").value;
+    userPw = document.getElementById("userPw").value;
+
+    userInfo = {
+      userId: userId,
+      userNm: userNm,
+      userPw: userPw,
+    };
+
+    if (userId == null || userId == "" || userId == undefined) {
+      const checkRltSpan = document.getElementById("checkRltSpan");
+      checkRltSpan.value = "n";
+      checkRltSpan.innerHTML = "";
+      return;
+    }
+
+    if (checkRltSpan.value != "y") {
+      alert("ID를 확인하여 주세요");
+      return;
+    }
+
+    const url = "http://localhost:8080/user/create";
+
+    postApi(url, userInfo, successAlert);
+  }
+
+  function successAlert() {
+    alert("성공하였습니다!");
+  }
+
+  function checkId() {
+    userId = document.getElementById("userId").value;
+    const url = "http://localhost:8080/user/count/" + userId;
+    getApi(url, checkResult);
+  }
+
+  function checkResult(rltData) {
+    const count = Number(rltData.result);
+
+    const checkRltSpan = document.getElementById("checkRltSpan");
+
+    if (count > 0) {
+      checkRltSpan.innerHTML = "중복된 ID 입니다";
+      checkRltSpan.style.color = "#FF0000";
+      checkRltSpan.value = "n";
+    } else {
+      checkRltSpan.innerHTML = "사용 가능한 ID 입니다";
+      checkRltSpan.style.color = "#2DB400";
+      checkRltSpan.value = "y";
+    }
+    checkRltSpan.style.display = "";
+  }
+</script>

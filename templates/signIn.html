@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8" />
+  <title>{{ .title}}</title>
+  <link rel="stylesheet" href="../static/css/style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <!-- <h1 class="title">{{ .title}}</h1> -->
+    <h1 class="text">{{ .message}}</h1>
+    <!-- <img class="image_1" src="../static/img/IMG_0050.PNG" alt="이미지 파일" /> -->
+    <div id="userIdDiv">
+      <input class="" value="" id="userId" type="text" placeholder="ID" />
+    </div>
+    <div>
+      <input class="" value="" id="userPw" type="password" placeholder="PW" />
+    </div>
+    <input type="button" class="" onclick="create()" value="회원가입" />
+  </div>
+</body>
+
+<footer></footer>
+<script src="../static/js/apiManager.js"></script>
+<script>
+  function create() {
+    userId = document.getElementById("userId").value;
+    userPw = document.getElementById("userPw").value;
+
+    if (userId == null || userId == "" || userId == undefined) {
+      alert("ID를 확인하여 주세요");
+      return;
+    }
+
+    if (userPw == null || userPw == "" || userPw == undefined) {
+      alert("비밀번호를 확인하여 주세요");
+      return;
+    }
+
+    loginInfo = {
+      userId: userId,
+      userPw: userPw,
+    };
+
+    const url = "http://localhost:8080/user/login";
+
+    postApi(url, loginInfo, successAlert);
+  }
+
+  function successAlert(data) {
+    console.log(data);
+
+    if ("userId" in data) {
+      alert(data.userId + "님 환영합니다!");
+    } else {
+      alert(data.result);
+    }
+  }
+</script>
