@@ -1,10 +1,13 @@
 package controller
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"github/godsr/go_gin_server/config"
 	"github/godsr/go_gin_server/models"
 	"github/godsr/go_gin_server/service"
+	"github/godsr/go_gin_server/util"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -16,7 +19,13 @@ var ResponseResult models.ResponseResult
 // 유저 생성
 func UserCreate(c *gin.Context) {
 	var userInfo models.UserInfo
-	c.BindJSON(&userInfo)
+	c.ShouldBindJSON(&userInfo)
+	// 비밀번호 암호화
+	hash := sha256.New()
+	hashValue := userInfo.UserPw + util.Conf("HASH_SALT") //소금
+	hash.Write([]byte(hashValue))
+	md := hash.Sum(nil)
+	userInfo.UserPw = hex.EncodeToString(md)
 
 	result := config.DB.Save(&userInfo)
 
@@ -32,6 +41,13 @@ func UserCreate(c *gin.Context) {
 }
 
 // 유저 수 체크
+// @Summary 유저 수 체크
+// @Description 유저 ID로 중복 유저를 확인 하는 API
+// @Accept  json
+// @Produce  json
+// @Router /user/count/{userId} [get]
+// @Param userId path string true "User ID"
+// @Success 200 {object} models.ResponseResult
 func UserCount(c *gin.Context) {
 	var userInfo models.UserInfo
 	var count int64
@@ -54,7 +70,7 @@ func Login(c *gin.Context) {
 	var tokenDetail models.TokenDetails
 	var loginToken models.LoginToken
 
-	c.BindJSON(&loginInfo)
+	c.ShouldBindJSON(&loginInfo)
 	result := config.DB.Where("user_id = ?", loginInfo.UserId).Find(&userInfo)
 
 	if result.Error != nil {
@@ -70,8 +86,15 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	// 비밀번호 암호화
+	hash := sha256.New()
+	hashValue := loginInfo.UserPw + util.Conf("HASH_SALT") //소금
+	hash.Write([]byte(hashValue))
+	md := hash.Sum(nil)
+	hashPw := hex.EncodeToString(md)
+
 	// 비밀번호가 틀렸을 경우
-	if userInfo[0].UserPw != loginInfo.UserPw {
+	if userInfo[0].UserPw != hashPw {
 		ResponseResult.Result = "비밀번호가 일치하지 않습니다!"
 		c.JSON(http.StatusOK, &ResponseResult)
 		return
@@ -117,7 +140,6 @@ func Logout(c *gin.Context) {
 }
 
 // func DeleteTokens(authD *AccessDetails) error {
-// 	client := common.GetClient()
 
 // 	//get the refresh uuid
 // 	refreshUuid := fmt.Sprintf("%s++%d", authD.AccessUuid, authD.UserId)

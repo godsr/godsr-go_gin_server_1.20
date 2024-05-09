@@ -1,0 +1,29 @@
+definitions:
+  models.ResponseResult:
+    properties:
+      result:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /user/count/{userId}:
+    get:
+      consumes:
+      - application/json
+      description: 유저 ID로 중복 유저를 확인 하는 API
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResponseResult'
+      summary: 유저 수 체크
+swagger: "2.0"

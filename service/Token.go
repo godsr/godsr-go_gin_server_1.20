@@ -24,7 +24,7 @@ func CreateToken(userId string) (td models.TokenDetails, err error) {
 
 	td.RtExpires = time.Now().Add(time.Hour * 24 * 7).Unix()
 	td.RefreshUuid = uuid.Must(uuid.NewV4()).String()
-	// Creating Access Token
+	// Access Token 생성
 	atClaims := jwt.MapClaims{}
 	atClaims["authorized"] = true
 	atClaims["access_uuid"] = td.AccessUuid
@@ -37,7 +37,7 @@ func CreateToken(userId string) (td models.TokenDetails, err error) {
 		return
 	}
 
-	// Creating Refresh Token
+	//Refresh Token 생성
 	rtClaims := jwt.MapClaims{}
 	rtClaims["refresh_uuid"] = td.RefreshUuid
 	rtClaims["user_id"] = userId
@@ -53,7 +53,7 @@ func CreateToken(userId string) (td models.TokenDetails, err error) {
 
 }
 
-// 토큰 저장
+// redis에 토큰 저장
 func CreateAuth(userId string, td models.TokenDetails) (err error) {
 
 	at := time.Unix(td.AtExpires, 0)
@@ -164,7 +164,7 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 	}
 }
 
-// refresh token
+// refresh token으로 access token 발급
 func Refresh(refreshToken string) (loginToken models.LoginToken, err error) {
 
 	//토큰 검증
@@ -178,20 +178,18 @@ func Refresh(refreshToken string) (loginToken models.LoginToken, err error) {
 
 	//if there is an error, the token must have expired
 	if err != nil {
-		// c.JSON(http.StatusUnauthorized, "Refresh token expired")
 		return
 	}
 
 	//is token valid?
 	if !token.Valid {
-		// c.JSON(http.StatusUnauthorized, err)
 		return
 	}
 
 	//Since token is valid, get the uuid:
 	claims, ok := token.Claims.(jwt.MapClaims) //the token claims should conform to MapClaims
 	if ok && token.Valid {
-		refreshUuid, ok := claims["refresh_uuid"].(string) //convert the interface to string
+		refreshUuid, ok := claims["refresh_uuid"].(string)
 		if !ok {
 			return
 		}
@@ -199,17 +197,17 @@ func Refresh(refreshToken string) (loginToken models.LoginToken, err error) {
 		if !ok {
 			return
 		}
-		//Delete the previous Refresh Token
+		//이전 검증 정보 삭제
 		deleted, delErr := DeleteAuth(refreshUuid)
-		if delErr != nil || deleted == 0 { //if any goes wrong
+		if delErr != nil || deleted == 0 {
 			return
 		}
-		//Create new pairs of refresh and access tokens
+		//새로운 토큰 갱신
 		ts, createErr := CreateToken(userId)
 		if createErr != nil {
 			return
 		}
-		//save the tokens metadata to redis
+		// redis에 저장
 		saveErr := CreateAuth(userId, ts)
 		if saveErr != nil {
 			return

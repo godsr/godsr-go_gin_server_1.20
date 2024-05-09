@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github/godsr/go_gin_server/config"
+	"github/godsr/go_gin_server/docs"
 	"github/godsr/go_gin_server/routes"
 	"github/godsr/go_gin_server/util"
 	"os"
@@ -45,6 +46,13 @@ func main() {
 	}
 
 	go util.LoadEnv(ctx)
+
+	docs.SwaggerInfo.Title = "Swagger Example API"
+	docs.SwaggerInfo.Description = "This is a sample server for Swagger."
+	docs.SwaggerInfo.Version = "2.0"
+	docs.SwaggerInfo.Host = "localhost:8080"
+	docs.SwaggerInfo.BasePath = ""
+
 	router := gin.New()
 	router.Use(ginlogrus.Logger(log.New()), gin.Recovery())
 	router.SetFuncMap(template.FuncMap{})
@@ -53,6 +61,7 @@ func main() {
 	routes.ApiRouter(router)
 	routes.UserRouter(router)
 	routes.HtmlRouter(router)
+	routes.SetupSwagger(router)   //swagger
 	config.Connect()              //DB 연결
 	config.RedisInit()            //Redis 연결
 	router.Run(util.Conf("PORT")) //.env에서 포트 읽어오기
