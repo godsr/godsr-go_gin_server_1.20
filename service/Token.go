@@ -136,23 +136,7 @@ func ExtractTokenMetadata(r *http.Request) (*models.AccessDetails, error) {
 func RefreshTokenMetaData(refreshToken string) (result string, err error) {
 
 	//토큰 검증
-	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
-
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(util.Conf("REFRESH_SECRET")), nil
-	})
-
-	//if there is an error, the token must have expired
-	if err != nil {
-		return
-	}
-
-	//is token valid?
-	if !token.Valid {
-		return
-	}
+	token, err := tokenDecoder(refreshToken, "refreshToken")
 
 	//Since token is valid, get the uuid:
 	claims, ok := token.Claims.(jwt.MapClaims) //the token claims should conform to MapClaims
@@ -161,7 +145,7 @@ func RefreshTokenMetaData(refreshToken string) (result string, err error) {
 		if !ok {
 			return
 		}
-		//이전 검증 정보 삭제
+		//redis에서 토큰 삭제
 		deleted, delErr := DeleteAuth(refreshUuid)
 		if delErr != nil || deleted == 0 {
 			return
@@ -211,23 +195,7 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 func Refresh(refreshToken string) (loginToken models.LoginToken, err error) {
 
 	//토큰 검증
-	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
-
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(util.Conf("REFRESH_SECRET")), nil
-	})
-
-	//if there is an error, the token must have expired
-	if err != nil {
-		return
-	}
-
-	//is token valid?
-	if !token.Valid {
-		return
-	}
+	token, err := tokenDecoder(refreshToken, "refreshToken")
 
 	//Since token is valid, get the uuid:
 	claims, ok := token.Claims.(jwt.MapClaims) //the token claims should conform to MapClaims
@@ -263,4 +231,37 @@ func Refresh(refreshToken string) (loginToken models.LoginToken, err error) {
 	} else {
 		return
 	}
+}
+
+func tokenDecoder(tokenString string, tokenType string) (*jwt.Token, error) {
+
+	var secretKey = ""
+
+	if tokenType == "refreshToken" {
+		secretKey = util.Conf("REFRESH_SECRET")
+	} else if tokenType == "accessToken" {
+		secretKey = util.Conf("ACCESS_SECRET")
+	}
+
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		if secretKey != "" {
+
+			return []byte(secretKey), nil
+		} else {
+			return nil, fmt.Errorf("token type is not null")
+		}
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !token.Valid {
+		return nil, fmt.Errorf("invalid token")
+	}
+
+	return token, nil
 }
