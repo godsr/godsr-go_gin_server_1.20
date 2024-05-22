@@ -123,14 +123,23 @@ func Login(c *gin.Context) {
 
 // 로그아웃
 func Logout(c *gin.Context) {
+	var loginToken models.LoginToken
 	au, err := service.ExtractTokenMetadata(c.Request)
+	c.ShouldBindJSON(&loginToken)
+	// access token delete
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, "unauthorized")
+		c.JSON(http.StatusUnauthorized, "access token error : token info is not found")
 		return
 	}
 	deleted, delErr := service.DeleteAuth(au.AccessUuid)
 	if delErr != nil || deleted == 0 {
-		c.JSON(http.StatusUnauthorized, "unauthorized")
+		c.JSON(http.StatusUnauthorized, "access token error : token delete fail")
+		return
+	}
+	// refresh token delete
+	deleteToken, delErr := service.RefreshTokenMetaData(loginToken.RefreshToken)
+	if delErr != nil || deleteToken != "success" {
+		c.JSON(http.StatusUnauthorized, "refresh token error : token delete fail")
 		return
 	}
 

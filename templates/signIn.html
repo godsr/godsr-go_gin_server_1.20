@@ -29,6 +29,7 @@
 </body>
 
 <footer></footer>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="../static/js/apiManager.js"></script>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
@@ -111,16 +112,23 @@
     const myLocalStorage = window.localStorage;
     const accessToken = myLocalStorage.getItem("accessToken");
     const refreshToken = myLocalStorage.getItem("refreshToken");
+    const userId = myLocalStorage.getItem("userId");
+
+    const userData = {
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      userId: userId,
+    };
 
     const logoutUrl = "http://localhost:8080/user/logout";
 
-    postApi(logoutUrl, accessToken, null, storageClear);
+    postApi(logoutUrl, accessToken, userData, storageClear);
   }
 
   function storageClear(data) {
     const myLocalStorage = window.localStorage;
     myLocalStorage.clear();
-    alert(data.result);
+    alert(data);
     changePage();
   }
 </script>

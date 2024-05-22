@@ -104,7 +104,7 @@ func TokenValid(r *http.Request) error {
 	return nil
 }
 
-// 토큰 메타데이터 추출
+// Access 토큰 메타데이터 추출
 func ExtractTokenMetadata(r *http.Request) (*models.AccessDetails, error) {
 	token, err := VerifyToken(r)
 	if err != nil {
@@ -130,6 +130,47 @@ func ExtractTokenMetadata(r *http.Request) (*models.AccessDetails, error) {
 		return &ad, nil
 	}
 	return nil, err
+}
+
+// refreshToken delete
+func RefreshTokenMetaData(refreshToken string) (result string, err error) {
+
+	//토큰 검증
+	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
+
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(util.Conf("REFRESH_SECRET")), nil
+	})
+
+	//if there is an error, the token must have expired
+	if err != nil {
+		return
+	}
+
+	//is token valid?
+	if !token.Valid {
+		return
+	}
+
+	//Since token is valid, get the uuid:
+	claims, ok := token.Claims.(jwt.MapClaims) //the token claims should conform to MapClaims
+	if ok && token.Valid {
+		refreshUuid, ok := claims["refresh_uuid"].(string)
+		if !ok {
+			return
+		}
+		//이전 검증 정보 삭제
+		deleted, delErr := DeleteAuth(refreshUuid)
+		if delErr != nil || deleted == 0 {
+			return
+		}
+
+		return "success", err
+	} else {
+		return
+	}
 }
 
 // 인증 가져오기
