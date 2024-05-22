@@ -57,3 +57,11 @@ function postApi(url, token, data, callback) {
       console.error("Error:", error);
     });
 }
+
+/*
+  Axios interceptor를 사용하여 request에 access token 삽입
+*/
+
+/*
+  access token이 만료시 refresh token으로 access token 재발급을 요청
+*/

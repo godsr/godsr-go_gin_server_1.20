@@ -139,6 +139,22 @@
   function submit() {
     const textValue = document.getElementById("textArea").value;
 
-    alert(textValue);
+    axios.interceptors.request.use((config) => {
+      if (!config.headers) return config;
+
+      let token = null;
+
+      if (config.url === REFRESH_URL) {
+        token = localStorage.getItem("refreshToken");
+      } else {
+        token = localStorage.getItem("accessToken");
+      }
+
+      if (token !== null) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+
+      return config;
+    });
   }
 </script>

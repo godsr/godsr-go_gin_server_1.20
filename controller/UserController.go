@@ -143,7 +143,7 @@ func Logout(c *gin.Context) {
 		return
 	}
 
-	ResponseResult.Result = "성공적으로 로그아웃 되었습니다!"
+	ResponseResult.Result = "LOGOUT SUCCESS !!"
 
 	c.JSON(http.StatusOK, ResponseResult.Result)
 }
