@@ -75,22 +75,29 @@ func CreateTodo(c *gin.Context) {
 	var td *models.Example
 	var response models.ResponseResult
 
+	//  작성글 Json binding
 	if err := c.ShouldBindJSON(&td); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, "invalid json")
 		return
 	}
+
+	// 토큰 데이터 확인
 	tokenAuth, err := service.ExtractTokenMetadata(c.Request)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
+	// 토큰에서 유저 ID 확인
 	userId, err := service.FetchAuth(tokenAuth)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
+	// 추가로 작성 하려면 이곳에서 유저 ID로 권한 비교 하는 기능 추가
+
+	// 글 저장
 	td.UserID = userId
 	result := config.DB.Save(&td)
 
@@ -102,8 +109,6 @@ func CreateTodo(c *gin.Context) {
 		response.Result = userId + "님의 글이 작성 완료 되었습니다."
 	}
 
-	//you can proceed to save the Todo to a database
-	//but we will just return it to the caller here:
 	c.JSON(http.StatusCreated, response)
 }
 

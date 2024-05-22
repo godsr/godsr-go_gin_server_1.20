@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github/godsr/go_gin_server/models"
 	"github/godsr/go_gin_server/util"
 
@@ -19,6 +20,7 @@ func Connect() {
 	db.AutoMigrate(&models.UserInfo{})
 	db.AutoMigrate(&models.Example{})
 	DB = db
+	fmt.Println("database connect !!")
 }
 
 var client *redis.Client
@@ -37,6 +39,8 @@ func RedisInit() {
 	if err != nil {
 		panic(err)
 	}
+
+	fmt.Println("redis connect !!")
 }
 func GetClient() *redis.Client {
 	return client

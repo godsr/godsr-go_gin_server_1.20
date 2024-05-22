@@ -16,8 +16,6 @@ import (
 
 // 토큰 생성
 
-var client = config.GetClient()
-
 func CreateToken(userId string) (td models.TokenDetails, err error) {
 	td.AtExpires = time.Now().Add(time.Minute * 15).Unix()
 	td.AccessUuid = uuid.Must(uuid.NewV4()).String()
@@ -55,6 +53,7 @@ func CreateToken(userId string) (td models.TokenDetails, err error) {
 
 // redis에 토큰 저장
 func CreateAuth(userId string, td models.TokenDetails) (err error) {
+	var client = config.GetClient()
 
 	at := time.Unix(td.AtExpires, 0)
 	rt := time.Unix(td.RtExpires, 0)
@@ -111,14 +110,15 @@ func ExtractTokenMetadata(r *http.Request) (*models.AccessDetails, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if ok && token.Valid {
 		accessUuid, ok := claims["access_uuid"].(string)
+
 		if !ok {
 			return nil, err
 		}
 		userId, ok := claims["user_id"].(string)
+
 		if !ok {
 			return nil, err
 		}
@@ -134,16 +134,18 @@ func ExtractTokenMetadata(r *http.Request) (*models.AccessDetails, error) {
 
 // 인증 가져오기
 func FetchAuth(authD *models.AccessDetails) (string, error) {
-	userid, err := client.Get(authD.AccessUuid).Result()
+	var client = config.GetClient()
+	userId, err := client.Get(authD.AccessUuid).Result()
 	if err != nil {
 		return err.Error(), err
 	}
 
-	return userid, nil
+	return userId, nil
 }
 
 // 인증 삭제
 func DeleteAuth(givenUuid string) (int64, error) {
+	var client = config.GetClient()
 	deleted, err := client.Del(givenUuid).Result()
 	if err != nil {
 		return 0, err

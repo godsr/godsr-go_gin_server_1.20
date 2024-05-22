@@ -20,13 +20,25 @@ function getApi(url, callback) {
 }
 
 // post
-function postApi(url, data, callback) {
+function postApi(url, token, data, callback) {
+  const header = {
+    "Content-Type": "application/json",
+  };
+
+  if (token) {
+    header.Authorization = "Bearer " + token;
+  }
+  let body;
+  if (data) {
+    body = JSON.stringify(data);
+  }
+
+  console.log(header);
+
   fetch(url, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
+    headers: header,
+    body: body,
   })
     .then((response) => {
       if (!response.ok) {

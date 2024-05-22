@@ -6,9 +6,9 @@
 </head>
 
 <body>
-  <div class="container">
+  <h1 class="text">{{ .message}}</h1>
+  <div class="container" id="loginNoDiv">
     <!-- <h1 class="title">{{ .title}}</h1> -->
-    <h1 class="text">{{ .message}}</h1>
     <!-- <img class="image_1" src="../static/img/IMG_0050.PNG" alt="이미지 파일" /> -->
     <div id="userIdDiv">
       <input class="" value="" id="userId" type="text" placeholder="ID" />
@@ -16,13 +16,43 @@
     <div>
       <input class="" value="" id="userPw" type="password" placeholder="PW" />
     </div>
-    <input type="button" class="" onclick="create()" value="회원가입" />
+    <input type="button" class="" onclick="create()" value="로그인" />
+  </div>
+  <div>
+    <div class="container">
+      <div class="" id="loginOKDiv" style="display: none">
+        <h2 class="text" id="userIdText"></h2>
+        <input type="button" class="" onclick="logout()" value="로그아웃" />
+      </div>
+    </div>
   </div>
 </body>
 
 <footer></footer>
 <script src="../static/js/apiManager.js"></script>
 <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    changePage();
+  });
+
+  function changePage() {
+    const loginNoDiv = document.getElementById("loginNoDiv");
+    const loginOKDiv = document.getElementById("loginOKDiv");
+    const myLocalStorage = window.localStorage;
+    if (loginCheck()) {
+      //  로그인 될 시
+      loginNoDiv.style.display = "none";
+      loginOKDiv.style.display = "block";
+
+      document.getElementById("userIdText").innerHTML =
+        "로그인 한 유저 : " + myLocalStorage.getItem("userId");
+    } else {
+      // 로그인 상태가 아닐 시
+      loginNoDiv.style.display = "block";
+      loginOKDiv.style.display = "none";
+    }
+  }
+
   function create() {
     userId = document.getElementById("userId").value;
     userPw = document.getElementById("userPw").value;
@@ -44,16 +74,53 @@
 
     const url = "http://localhost:8080/user/login";
 
-    postApi(url, loginInfo, successAlert);
+    postApi(url, null, loginInfo, successAlert);
   }
 
   function successAlert(data) {
-    console.log(data);
-
     if ("userId" in data) {
+      // LocalStorage에 token 저장 및 user 정보 저장
+      window.localStorage.setItem("accessToken", data.accessToken);
+      window.localStorage.setItem("refreshToken", data.refreshToken);
+      window.localStorage.setItem("userId", data.userId);
       alert(data.userId + "님 환영합니다!");
+      changePage();
     } else {
       alert(data.result);
     }
+  }
+
+  // 로그인 확인 여부
+  function loginCheck() {
+    const myLocalStorage = window.localStorage;
+    const userId = myLocalStorage.getItem("userId");
+    const accessToken = myLocalStorage.getItem("accessToken");
+    const refreshToken = myLocalStorage.getItem("refreshToken");
+
+    if (!userId || !accessToken || !refreshToken) {
+      console.log("local storage에 정보가 없습니다");
+      return false;
+    }
+
+    // 서버에서 로그인 체크 기능 추가 ?
+
+    return true;
+  }
+
+  function logout() {
+    const myLocalStorage = window.localStorage;
+    const accessToken = myLocalStorage.getItem("accessToken");
+    const refreshToken = myLocalStorage.getItem("refreshToken");
+
+    const logoutUrl = "http://localhost:8080/user/logout";
+
+    postApi(logoutUrl, accessToken, null, storageClear);
+  }
+
+  function storageClear(data) {
+    const myLocalStorage = window.localStorage;
+    myLocalStorage.clear();
+    alert(data.result);
+    changePage();
   }
 </script>

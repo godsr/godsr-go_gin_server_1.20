@@ -138,28 +138,3 @@ func Logout(c *gin.Context) {
 
 	c.JSON(http.StatusOK, ResponseResult.Result)
 }
-
-// func DeleteTokens(authD *AccessDetails) error {
-
-// 	//get the refresh uuid
-// 	refreshUuid := fmt.Sprintf("%s++%d", authD.AccessUuid, authD.UserId)
-
-// 	//delete access token
-// 	deletedAt, err := client.Del(authD.AccessUuid).Result()
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	//delete refresh token
-// 	deletedRt, err := client.Del(refreshUuid).Result()
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	//When the record is deleted, the return value is 1
-// 	if deletedAt != 1 || deletedRt != 1 {
-// 		return errors.New("something went wrong")
-// 	}
-
-// 	return nil
-// }
