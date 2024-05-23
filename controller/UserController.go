@@ -75,7 +75,7 @@ func Login(c *gin.Context) {
 
 	if result.Error != nil {
 		ResponseResult.Result = "error : " + result.Error.Error()
-		c.JSON(http.StatusInternalServerError, ResponseResult.Result)
+		c.JSON(http.StatusInternalServerError, ResponseResult)
 		return
 	}
 
@@ -145,5 +145,5 @@ func Logout(c *gin.Context) {
 
 	ResponseResult.Result = "LOGOUT SUCCESS !!"
 
-	c.JSON(http.StatusOK, ResponseResult.Result)
+	c.JSON(http.StatusOK, ResponseResult)
 }

@@ -147,7 +147,9 @@
   function storageClear(data) {
     const myLocalStorage = window.localStorage;
     myLocalStorage.clear();
-    alert(data);
+    if (data) {
+      alert(data.result);
+    }
   }
 
   function submit() {
