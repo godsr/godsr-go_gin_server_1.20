@@ -17,8 +17,6 @@ func ApiRouter(router *gin.Engine) {
 
 	apiRouter := router.Group("/api")
 
-	// apiRouter.GET("/", controller.UserController)
-
 	apiRouter.GET("/test", controller.Getting)
 	apiRouter.POST("/test", controller.Posting)
 	apiRouter.DELETE("/test/:id", controller.Delete)

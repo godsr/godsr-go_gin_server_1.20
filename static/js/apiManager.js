@@ -4,14 +4,15 @@
       axiosRequest(method, url, requestData)
       .then(function (data) {
         console.log("Success:", data);
+        //요청 성공 시
         성공시 사용할 함수(data);
       })
       .catch(function (errMsgData) {
+        //요청 실패 시
         alert(errMsgData.result);
       });
 
 */
-
 /*
   Axios interceptor를 사용하여 request에 access token 삽입
 */
@@ -34,12 +35,9 @@ axios.interceptors.request.use(
 async function refreshAccessToken() {
   try {
     const refreshToken = localStorage.getItem("refreshToken");
-    const response = await axios.post(
-      "http://localhost:8080/api/test/refresh",
-      {
-        refreshToken: refreshToken,
-      }
-    );
+    const response = await axios.post(baseUrl + "api/test/refresh", {
+      refreshToken: refreshToken,
+    });
     const newAccessToken = response.data.accessToken;
     const newRefreshToken = response.data.refreshToken;
     localStorage.setItem("accessToken", newAccessToken);
@@ -61,7 +59,7 @@ function axiosRequest(method, url, data = null) {
   // Axios 요청 설정
   const config = {
     method: method,
-    url: url,
+    url: baseUrl + url,
     data: data,
   };
 

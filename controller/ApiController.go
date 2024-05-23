@@ -25,8 +25,8 @@ func Getting(c *gin.Context) {
 	result := config.DB.Find(&user)
 
 	if result.Error != nil {
-		ResponseResult.Result = "error : " + result.Error.Error()
-		c.JSON(http.StatusInternalServerError, ResponseResult.Result)
+		responseResult.Result = "error : " + result.Error.Error()
+		c.JSON(http.StatusInternalServerError, responseResult.Result)
 		return
 	}
 	c.JSON(http.StatusOK, &user)
@@ -64,34 +64,36 @@ func TestHash(c *gin.Context) {
 
 	hash.Write([]byte(hashValue))
 	md := hash.Sum(nil)
-	ResponseResult.Result = hex.EncodeToString(md)
+	responseResult.Result = hex.EncodeToString(md)
 
-	c.JSON(http.StatusOK, ResponseResult.Result)
+	c.JSON(http.StatusOK, responseResult.Result)
 
 }
 
 // 글 작성 예시
 func CreateTodo(c *gin.Context) {
 	var td *models.Example
-	var response models.ResponseResult
 
 	//  작성글 Json binding
 	if err := c.ShouldBindJSON(&td); err != nil {
-		c.JSON(http.StatusUnprocessableEntity, "invalid json")
+		responseResult.Result = "invalid json"
+		c.JSON(http.StatusUnprocessableEntity, responseResult)
 		return
 	}
 
 	// 토큰 데이터 확인
 	tokenAuth, err := service.ExtractTokenMetadata(c.Request)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, "unauthorized")
+		responseResult.Result = "unauthorized"
+		c.JSON(http.StatusUnauthorized, responseResult)
 		return
 	}
 
 	// 토큰에서 유저 ID 확인
 	userId, err := service.FetchAuth(tokenAuth)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, "unauthorized")
+		responseResult.Result = "unauthorized"
+		c.JSON(http.StatusUnauthorized, responseResult)
 		return
 	}
 
@@ -102,14 +104,14 @@ func CreateTodo(c *gin.Context) {
 	result := config.DB.Save(&td)
 
 	if result.Error != nil {
-		ResponseResult.Result = "error : " + result.Error.Error()
-		c.JSON(http.StatusInternalServerError, ResponseResult)
+		responseResult.Result = "error : " + result.Error.Error()
+		c.JSON(http.StatusInternalServerError, responseResult)
 		return
 	} else {
-		response.Result = userId + "님의 글이 작성 완료 되었습니다."
+		responseResult.Result = userId + "님의 글이 작성 완료 되었습니다."
 	}
 
-	c.JSON(http.StatusCreated, response)
+	c.JSON(http.StatusCreated, responseResult)
 }
 
 // token 재발급

@@ -11,7 +11,7 @@ import (
 )
 
 // 응답 결과
-var ResponseResult models.ResponseResult
+var responseResult models.ResponseResult
 
 // 유저 생성
 func UserCreate(c *gin.Context) {
@@ -23,14 +23,14 @@ func UserCreate(c *gin.Context) {
 	result := config.DB.Save(&userInfo)
 
 	if result.Error != nil {
-		ResponseResult.Result = "error : " + result.Error.Error()
-		c.JSON(http.StatusInternalServerError, ResponseResult)
+		responseResult.Result = "error : " + result.Error.Error()
+		c.JSON(http.StatusInternalServerError, responseResult)
 		return
 	} else {
-		ResponseResult.Result = "success"
+		responseResult.Result = "success"
 	}
 
-	c.JSON(http.StatusOK, &ResponseResult)
+	c.JSON(http.StatusOK, &responseResult)
 }
 
 // 유저 수 체크
@@ -47,14 +47,14 @@ func UserCount(c *gin.Context) {
 	result := config.DB.Model(&userInfo).Where("user_id = ?", c.Param("userId")).Count(&count)
 
 	if result.Error != nil {
-		ResponseResult.Result = "error : " + result.Error.Error()
-		c.JSON(http.StatusInternalServerError, ResponseResult)
+		responseResult.Result = "error : " + result.Error.Error()
+		c.JSON(http.StatusInternalServerError, responseResult)
 		return
 	}
 
-	ResponseResult.Result = fmt.Sprintf("%d", count)
+	responseResult.Result = fmt.Sprintf("%d", count)
 
-	c.JSON(http.StatusOK, &ResponseResult)
+	c.JSON(http.StatusOK, &responseResult)
 }
 
 func Login(c *gin.Context) {
@@ -67,15 +67,15 @@ func Login(c *gin.Context) {
 	result := config.DB.Where("user_id = ?", loginInfo.UserId).Find(&userInfo)
 
 	if result.Error != nil {
-		ResponseResult.Result = "error : " + result.Error.Error()
-		c.JSON(http.StatusInternalServerError, ResponseResult)
+		responseResult.Result = "error : " + result.Error.Error()
+		c.JSON(http.StatusInternalServerError, responseResult)
 		return
 	}
 
 	// 회원 정보가 없을 경우
 	if 0 >= len(userInfo) {
-		ResponseResult.Result = "일치하는 회원정보가 없습니다!"
-		c.JSON(http.StatusInternalServerError, &ResponseResult)
+		responseResult.Result = "일치하는 회원정보가 없습니다!"
+		c.JSON(http.StatusInternalServerError, &responseResult)
 		return
 	}
 
@@ -84,22 +84,24 @@ func Login(c *gin.Context) {
 
 	// 비밀번호가 틀렸을 경우
 	if userInfo[0].UserPw != hashPw {
-		ResponseResult.Result = "비밀번호가 일치하지 않습니다!"
-		c.JSON(http.StatusInternalServerError, &ResponseResult)
+		responseResult.Result = "비밀번호가 일치하지 않습니다!"
+		c.JSON(http.StatusInternalServerError, &responseResult)
 		return
 	}
 
 	// 토큰 생성
 	tokenDetail, err := service.CreateToken(userInfo[0].UserId)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, err.Error())
+		responseResult.Result = err.Error()
+		c.JSON(http.StatusUnprocessableEntity, responseResult)
 		return
 	}
 
 	// 토큰 저장
 	saveErr := service.CreateAuth(userInfo[0].UserId, tokenDetail)
 	if saveErr != nil {
-		c.JSON(http.StatusUnprocessableEntity, saveErr.Error())
+		responseResult.Result = saveErr.Error()
+		c.JSON(http.StatusUnprocessableEntity, responseResult)
 	}
 
 	loginToken.UserId = userInfo[0].UserId
@@ -117,22 +119,25 @@ func Logout(c *gin.Context) {
 	c.ShouldBindJSON(&loginToken)
 	// access token delete
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, "access token error : token info is not found")
+		responseResult.Result = "access token error : token info is not found"
+		c.JSON(http.StatusUnauthorized, responseResult)
 		return
 	}
 	deleted, delErr := service.DeleteAuth(au.AccessUuid)
 	if delErr != nil || deleted == 0 {
-		c.JSON(http.StatusUnauthorized, "access token error : token delete fail")
+		responseResult.Result = "access token error : token delete fail"
+		c.JSON(http.StatusUnauthorized, responseResult)
 		return
 	}
 	// refresh token delete
 	deleteToken, delErr := service.RefreshTokenMetaData(loginToken.RefreshToken)
 	if delErr != nil || deleteToken != "success" {
-		c.JSON(http.StatusUnauthorized, "refresh token error : token delete fail")
+		responseResult.Result = "refresh token error : token delete fail"
+		c.JSON(http.StatusUnauthorized, responseResult)
 		return
 	}
 
-	ResponseResult.Result = "LOGOUT SUCCESS !!"
+	responseResult.Result = "LOGOUT SUCCESS !!"
 
-	c.JSON(http.StatusOK, ResponseResult)
+	c.JSON(http.StatusOK, responseResult)
 }
