@@ -22,6 +22,7 @@ func ApiRouter(router *gin.Engine) {
 	apiRouter.DELETE("/test/:id", controller.Delete)
 	apiRouter.PUT("/test/:id", controller.Update)
 	apiRouter.POST("/test/createTodo", service.TokenAuthMiddleware(), controller.CreateTodo)
+	apiRouter.GET("/test/viewTodo", service.TokenAuthMiddleware(), controller.ViewTodo)
 	apiRouter.POST("/test/refresh", controller.RefreshToken)
 	apiRouter.POST("/test/testHash", controller.TestHash)
 

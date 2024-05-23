@@ -10,6 +10,7 @@
     <!-- <h1 class="title">{{ .title}}</h1> -->
     <h1 class="text">{{ .message}}</h1>
     <!-- <img class="image_1" src="../static/img/IMG_0050.PNG" alt="이미지 파일" /> -->
+    <span id="checkRltSpan" style="display: none" value="n"></span>
     <div id="userIdDiv">
       <input
         class=""
@@ -19,7 +20,6 @@
         placeholder="ID"
         oninput="checkId()"
       />
-      <span id="checkRltSpan" style="display: none" value="n"></span>
     </div>
     <div>
       <input class="" value="" id="userNm" type="text" placeholder="이름" />
@@ -27,7 +27,9 @@
     <div>
       <input class="" value="" id="userPw" type="password" placeholder="PW" />
     </div>
-    <input type="button" class="" onclick="create()" value="회원가입" />
+    <div>
+      <input type="button" class="" onclick="create()" value="회원가입" />
+    </div>
   </div>
 </body>
 
@@ -36,6 +38,15 @@
 <script src="../static/js/axios.js"></script>
 <script src="../static/js/apiManager.js"></script>
 <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const myLocalStorage = window.localStorage;
+    const accessToken = myLocalStorage.getItem("accessToken");
+    const refreshToken = myLocalStorage.getItem("refreshToken");
+    if (accessToken || refreshToken) {
+      history.back();
+    }
+  });
+
   function create() {
     userId = document.getElementById("userId").value;
     userNm = document.getElementById("userNm").value;
@@ -64,15 +75,12 @@
     axiosRequest("POST", url, userInfo)
       .then(function (data) {
         console.log("Success:", data);
-        successAlert(data);
+        alert("성공하였습니다!");
+        location.href = "http://localhost:8080/page/signIn";
       })
       .catch(function (errMsgData) {
         alert(errMsgData.result);
       });
-  }
-
-  function successAlert() {
-    alert("성공하였습니다!");
   }
 
   function checkId() {

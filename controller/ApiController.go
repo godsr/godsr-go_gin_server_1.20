@@ -114,6 +114,37 @@ func CreateTodo(c *gin.Context) {
 	c.JSON(http.StatusCreated, responseResult)
 }
 
+// 작성 글 보기 예시
+func ViewTodo(c *gin.Context) {
+	var td []models.Example
+	// 토큰 데이터 확인
+	tokenAuth, err := service.ExtractTokenMetadata(c.Request)
+	if err != nil {
+		responseResult.Result = "unauthorized"
+		c.JSON(http.StatusUnauthorized, responseResult)
+		return
+	}
+
+	// 토큰에서 유저 ID 확인
+	userId, err := service.FetchAuth(tokenAuth)
+	if err != nil {
+		responseResult.Result = "unauthorized"
+		c.JSON(http.StatusUnauthorized, responseResult)
+		return
+	}
+
+	// 글 목록 가져오기
+	result := config.DB.Where("user_id = ?", userId).Find(&td)
+
+	if result.Error != nil {
+		responseResult.Result = "error : " + result.Error.Error()
+		c.JSON(http.StatusInternalServerError, responseResult)
+		return
+	}
+
+	c.JSON(http.StatusCreated, td)
+}
+
 // token 재발급
 func RefreshToken(c *gin.Context) {
 	mapToken := map[string]string{}

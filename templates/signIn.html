@@ -10,23 +10,51 @@
   <div class="container" id="loginNoDiv">
     <!-- <h1 class="title">{{ .title}}</h1> -->
     <!-- <img class="image_1" src="../static/img/IMG_0050.PNG" alt="이미지 파일" /> -->
-    <div id="userIdDiv">
+    <div class="inputDiv" id="userIdDiv">
       <input class="" value="" id="userId" type="text" placeholder="ID" />
     </div>
-    <div>
+    <div class="inputDiv">
       <input class="" value="" id="userPw" type="password" placeholder="PW" />
     </div>
     <input type="button" class="" onclick="create()" value="로그인" />
+    <input
+      type="button"
+      class=""
+      onclick="location.href = 'http://localhost:8080/page/signUp'"
+      value="회원가입"
+    />
   </div>
   <div>
     <div class="container">
       <div class="" id="loginOKDiv" style="display: none">
         <h2 class="text" id="userIdText"></h2>
+        <div style="text-align: right; margin-bottom: 10px; margin-right: 10px">
+          <input type="button" class="" onclick="logout()" value="로그아웃" />
+        </div>
         <div class="textArea" style="display: flex; flex-direction: column">
           <textarea id="textArea"> </textarea>
           <input type="button" class="" onclick="submit()" value="등록" />
         </div>
-        <input type="button" class="" onclick="logout()" value="로그아웃" />
+        <div
+          class="tableDiv"
+          style="margin-top: 20px; display: flex; justify-content: center"
+        >
+          <table>
+            <thead>
+              <tr>
+                <th>작성시간</th>
+                <th>내용</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- 예제 내용 -->
+              <tr>
+                <td>작성시간</td>
+                <td>작성내용</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -34,7 +62,7 @@
 
 <footer></footer>
 <script src="../static/js/etc.js"></script>
-<script src="../static/js/axios.min.js"></script>
+<script src="../static/js/axios.js"></script>
 <script src="../static/js/apiManager.js"></script>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
@@ -98,6 +126,7 @@
       window.localStorage.setItem("userId", data.userId);
       alert(data.userId + "님 환영합니다!");
       changePage();
+      tableInfo();
     } else {
       alert(data.result);
     }
@@ -173,5 +202,22 @@
       .catch(function (errMsgData) {
         alert(errMsgData.result);
       });
+  }
+
+  function tableInfo() {
+    const tableUrl = "api/test/viewTodo";
+
+    axiosRequest("GET", tableUrl)
+      .then(function (data) {
+        console.log("Success:", data);
+        tableMake(data);
+      })
+      .catch(function (errMsgData) {
+        alert(errMsgData.result);
+      });
+  }
+
+  function tableMake(data) {
+    alert(data);
   }
 </script>
