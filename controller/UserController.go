@@ -1,13 +1,10 @@
 package controller
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"github/godsr/go_gin_server/config"
 	"github/godsr/go_gin_server/models"
 	"github/godsr/go_gin_server/service"
-	"github/godsr/go_gin_server/util"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -21,11 +18,7 @@ func UserCreate(c *gin.Context) {
 	var userInfo models.UserInfo
 	c.ShouldBindJSON(&userInfo)
 	// 비밀번호 암호화
-	hash := sha256.New()
-	hashValue := userInfo.UserPw + util.Conf("HASH_SALT") //소금
-	hash.Write([]byte(hashValue))
-	md := hash.Sum(nil)
-	userInfo.UserPw = hex.EncodeToString(md)
+	userInfo.UserPw = service.HashSALT(userInfo.UserPw)
 
 	result := config.DB.Save(&userInfo)
 
@@ -87,11 +80,7 @@ func Login(c *gin.Context) {
 	}
 
 	// 비밀번호 암호화
-	hash := sha256.New()
-	hashValue := loginInfo.UserPw + util.Conf("HASH_SALT") //소금
-	hash.Write([]byte(hashValue))
-	md := hash.Sum(nil)
-	hashPw := hex.EncodeToString(md)
+	hashPw := service.HashSALT(loginInfo.UserPw)
 
 	// 비밀번호가 틀렸을 경우
 	if userInfo[0].UserPw != hashPw {
