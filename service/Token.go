@@ -17,10 +17,10 @@ import (
 // 토큰 생성
 
 func CreateToken(userId string) (td models.TokenDetails, err error) {
-	td.AtExpires = time.Now().Add(time.Minute * 15).Unix()
+	td.AtExpires = time.Now().Add(time.Minute * 15).Unix() //access token 토큰 만료시간
 	td.AccessUuid = uuid.Must(uuid.NewV4()).String()
 
-	td.RtExpires = time.Now().Add(time.Hour * 24 * 7).Unix()
+	td.RtExpires = time.Now().Add(time.Hour * 24 * 7).Unix() //refresh token 토큰 만료 시간
 	td.RefreshUuid = uuid.Must(uuid.NewV4()).String()
 	// Access Token 생성
 	atClaims := jwt.MapClaims{}
@@ -248,7 +248,6 @@ func tokenDecoder(tokenString string, tokenType string) (*jwt.Token, error) {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		if secretKey != "" {
-
 			return []byte(secretKey), nil
 		} else {
 			return nil, fmt.Errorf("token type is not null")

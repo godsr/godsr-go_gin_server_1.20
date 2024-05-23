@@ -31,7 +31,7 @@ func UserCreate(c *gin.Context) {
 
 	if result.Error != nil {
 		ResponseResult.Result = "error : " + result.Error.Error()
-		c.JSON(http.StatusInternalServerError, ResponseResult.Result)
+		c.JSON(http.StatusInternalServerError, ResponseResult)
 		return
 	} else {
 		ResponseResult.Result = "success"
@@ -55,7 +55,7 @@ func UserCount(c *gin.Context) {
 
 	if result.Error != nil {
 		ResponseResult.Result = "error : " + result.Error.Error()
-		c.JSON(http.StatusInternalServerError, ResponseResult.Result)
+		c.JSON(http.StatusInternalServerError, ResponseResult)
 		return
 	}
 
@@ -82,7 +82,7 @@ func Login(c *gin.Context) {
 	// 회원 정보가 없을 경우
 	if 0 >= len(userInfo) {
 		ResponseResult.Result = "일치하는 회원정보가 없습니다!"
-		c.JSON(http.StatusOK, &ResponseResult)
+		c.JSON(http.StatusInternalServerError, &ResponseResult)
 		return
 	}
 
@@ -96,7 +96,7 @@ func Login(c *gin.Context) {
 	// 비밀번호가 틀렸을 경우
 	if userInfo[0].UserPw != hashPw {
 		ResponseResult.Result = "비밀번호가 일치하지 않습니다!"
-		c.JSON(http.StatusOK, &ResponseResult)
+		c.JSON(http.StatusInternalServerError, &ResponseResult)
 		return
 	}
 

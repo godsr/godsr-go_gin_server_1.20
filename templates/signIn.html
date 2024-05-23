@@ -79,7 +79,14 @@
 
     const url = "http://localhost:8080/user/login";
 
-    postApi(url, null, loginInfo, successAlert);
+    axiosRequest("POST", url, loginInfo)
+      .then(function (data) {
+        console.log("Success:", data);
+        successAlert(data);
+      })
+      .catch(function (errMsgData) {
+        alert(errMsgData.result);
+      });
   }
 
   function successAlert(data) {
@@ -126,35 +133,42 @@
 
     const logoutUrl = "http://localhost:8080/user/logout";
 
-    postApi(logoutUrl, accessToken, userData, storageClear);
+    axiosRequest("POST", logoutUrl, userData)
+      .then(function (data) {
+        console.log("Success:", data);
+        storageClear(data);
+        changePage();
+      })
+      .catch(function (errMsgData) {
+        alert(errMsgData.result);
+      });
   }
 
   function storageClear(data) {
     const myLocalStorage = window.localStorage;
     myLocalStorage.clear();
     alert(data);
-    changePage();
   }
 
   function submit() {
     const textValue = document.getElementById("textArea").value;
+    const userId = localStorage.getItem("userId");
 
-    axios.interceptors.request.use((config) => {
-      if (!config.headers) return config;
+    const todoUrl = "http://localhost:8080/api/test/createTodo";
 
-      let token = null;
+    const requestData = {
+      userId: userId,
+      title: textValue,
+    };
 
-      if (config.url === REFRESH_URL) {
-        token = localStorage.getItem("refreshToken");
-      } else {
-        token = localStorage.getItem("accessToken");
-      }
-
-      if (token !== null) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-
-      return config;
-    });
+    axiosRequest("POST", todoUrl, requestData)
+      .then(function (data) {
+        console.log("Success:", data);
+        alert("글 작성 완료");
+        window.location.reload();
+      })
+      .catch(function (errMsgData) {
+        alert(errMsgData.result);
+      });
   }
 </script>

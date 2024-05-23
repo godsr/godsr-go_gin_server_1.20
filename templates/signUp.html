@@ -32,6 +32,7 @@
 </body>
 
 <footer></footer>
+<script src="../static/js/axios.js"></script>
 <script src="../static/js/apiManager.js"></script>
 <script>
   function create() {
@@ -59,7 +60,14 @@
 
     const url = "http://localhost:8080/user/create";
 
-    postApi(url, null, userInfo, successAlert);
+    axiosRequest("POST", url, userInfo)
+      .then(function (data) {
+        console.log("Success:", data);
+        successAlert(data);
+      })
+      .catch(function (errMsgData) {
+        alert(errMsgData.result);
+      });
   }
 
   function successAlert() {
@@ -68,8 +76,21 @@
 
   function checkId() {
     userId = document.getElementById("userId").value;
+
+    if (userId == null || userId == "") {
+      return;
+    }
+
     const url = "http://localhost:8080/user/count/" + userId;
-    getApi(url, checkResult);
+
+    axiosRequest("GET", url)
+      .then(function (data) {
+        console.log("Success:", data);
+        checkResult(data);
+      })
+      .catch(function (errMsgData) {
+        alert(errMsgData.result);
+      });
   }
 
   function checkResult(rltData) {

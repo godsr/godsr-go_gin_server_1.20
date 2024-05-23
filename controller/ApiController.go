@@ -103,7 +103,7 @@ func CreateTodo(c *gin.Context) {
 
 	if result.Error != nil {
 		ResponseResult.Result = "error : " + result.Error.Error()
-		c.JSON(http.StatusInternalServerError, ResponseResult.Result)
+		c.JSON(http.StatusInternalServerError, ResponseResult)
 		return
 	} else {
 		response.Result = userId + "님의 글이 작성 완료 되었습니다."
