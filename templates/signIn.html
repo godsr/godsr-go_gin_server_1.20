@@ -39,7 +39,7 @@
           class="tableDiv"
           style="margin-top: 20px; display: flex; justify-content: center"
         >
-          <table>
+          <table id="mainTable">
             <thead>
               <tr>
                 <th>작성시간</th>
@@ -80,6 +80,7 @@
 
       document.getElementById("userIdText").innerHTML =
         "로그인 한 유저 : " + myLocalStorage.getItem("userId");
+      tableInfo();
     } else {
       // 로그인 상태가 아닐 시
       loginNoDiv.style.display = "block";
@@ -218,6 +219,18 @@
   }
 
   function tableMake(data) {
-    alert(data);
+    console.log(data.length);
+
+    const tBody = document.getElementById("mainTable").querySelector("tbody");
+    tBody.innerHTML = "";
+
+    for (let i = 0; i < data.length; i++) {
+      const row = tBody.insertRow(i);
+      const createdAtRow = row.insertCell(0); //작성시간
+      const titleRow = row.insertCell(1); //내용
+
+      createdAtRow.innerHTML = data[i].CreatedAt || "-";
+      titleRow.innerHTML = data[i].title || "-";
+    }
   }
 </script>
